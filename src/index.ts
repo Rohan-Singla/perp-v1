@@ -29,7 +29,7 @@ app.post("/signup", async (req, res) => {
     const hashedpassword = await bcrypt.hash(password, 10);
 
     const token = jwt.sign(
-        { userId: username },
+        { username: username },
         process.env.JWT_SECRET!,
         { expiresIn: '7d' }
     );
@@ -45,11 +45,37 @@ app.post("/signup", async (req, res) => {
 });
 
 
-app.post("/signin", (req, res) => {
+app.post("/signin", async (req, res) => {
 
     const {username , password } = req.body;
 
-    
+    if(!username || !password){
+        return res.status(401).json({error : "Username or Password is missing !!"});
+    }
+
+    const checkuser = await prisma.user.findUnique({
+        where : {
+            username : username
+        }
+    });
+
+    if(!checkuser){
+        return res.status(401).json({error : "User doesn't exist !"})
+    };
+
+    const iscorrect = await bcrypt.compare(password , checkuser.password);
+
+    if(iscorrect){
+        const token = jwt.sign(
+            { username : username },
+            process.env.JWT_SECRET!,
+            { expiresIn: '7d' }
+        );
+
+        return res.json({token : token})
+    }else{
+        return res.status(401).json({error : "Credentials are not correct !!"})
+    }
 
  })
 
