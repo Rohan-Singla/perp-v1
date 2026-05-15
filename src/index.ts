@@ -3,6 +3,8 @@ import type { Authuser } from "../types";
 import { prisma } from "../lib/prisma-client";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import { middleware } from "../lib/auth";
+
 const app = express();
 app.use(express.json());
 
@@ -79,16 +81,18 @@ app.post("/signin", async (req, res) => {
 
  })
 
-app.post("/onramp", (req, res) => { })
+app.post("/onramp",middleware, (req, res) => {
 
-app.post("/order", (req, res) => { })
-app.delete("/order", (req, res) => { })
-app.get("/equity/available", (req, res) => { })
-app.get("/positions/open/:marketId", (req, res) => { });
-app.get("/positions/closed/:marketId", (req, res) => { });
-app.get("/orders/open/:marketId", (req, res) => { })
-app.get("/orders/:marketId", (req, res) => { })
-app.get("/fills", (req, res) => { });
+ })
+
+app.post("/order", middleware, (req, res) => { })
+app.delete("/order/:orderId",middleware, (req, res) => { })
+app.get("/equity/available", middleware,(req, res) => { })
+app.get("/positions/open/:marketId", middleware,(req, res) => { });
+app.get("/positions/closed/:marketId", middleware,(req, res) => { });
+app.get("/orders/open/:marketId", middleware,(req, res) => { })
+app.get("/orders/:marketId", middleware,(req, res) => { })
+app.get("/fills", middleware,(req, res) => { });
 
 async function liqudationChecks(asset: string, price: number) {
 
