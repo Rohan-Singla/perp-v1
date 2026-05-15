@@ -1,4 +1,4 @@
-import type { Orderbooks } from "./types";
+import type { Orderbooks } from "../types";
 
 const users = [{
     userId: 1,
@@ -9,7 +9,14 @@ const users = [{
          locked: 1000
     },
      positions: [
-        { market: "SOL", type: "LONG", qty: 10, margin: 500, liquidationPrice: 80, averagePrice: 90 },
+        { 
+            
+            market: "SOL",
+             type: "LONG", qty: 10, margin: 500,
+              liquidationPrice: 80, averagePrice: 90 
+        
+        
+        },
         { market: "ETH", type: "SHORT", qty: 1, margin: 500, liquidationPrice: 2000, averagePrice: 1900 }
     ],
     orders: [
