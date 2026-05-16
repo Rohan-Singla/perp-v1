@@ -4,6 +4,7 @@ import { prisma } from "../lib/prisma-client";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { middleware } from "../lib/auth";
+import { onramp } from "./engine/onramp";
 
 const app = express();
 app.use(express.json());
@@ -81,8 +82,13 @@ app.post("/signin", async (req, res) => {
 
  })
 
-app.post("/onramp",middleware, (req, res) => {
+app.post("/onramp", middleware, async (req, res) => {
+    // @ts-ignore
+    const userId = req.userId;
 
+    const result = await onramp(userId);
+
+    return res.json(result);
  })
 
 app.post("/order", middleware, (req, res) => { })

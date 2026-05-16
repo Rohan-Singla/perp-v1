@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import jwt from 'jsonwebtoken';
 
 export interface TokenPayload {
-    username : string
+    userId : string
 }
 
 export function middleware (req : Request,res : Response , next : NextFunction){
@@ -19,7 +19,7 @@ export function middleware (req : Request,res : Response , next : NextFunction){
     const payload = jwt.verify(token,process.env.JWT_SECRET!) as TokenPayload;
     
     // @ts-ignore
-    req.username = payload.username;
+    req.userId = payload.userId;
 
     next();
 

@@ -10,6 +10,11 @@ export type Orderbook = {
     indexPrice: number
 }
 
+export type User = {
+    authUser : Authuser,
+    tradingAccount : TradingAccount
+}
+
 export type Authuser = {
     userId ?: string,
     username : string,
