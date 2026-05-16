@@ -5,6 +5,8 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { middleware } from "../lib/auth";
 import { onramp } from "./engine/onramp";
+import { matchOrder } from "./engine/order";
+import { fetchBalance } from "./engine/fetchBalance";
 
 const app = express();
 app.use(express.json());
@@ -80,7 +82,7 @@ app.post("/signin", async (req, res) => {
         return res.status(401).json({error : "Credentials are not correct !!"})
     }
 
- })
+ });
 
 app.post("/onramp", middleware, async (req, res) => {
     // @ts-ignore
@@ -89,11 +91,32 @@ app.post("/onramp", middleware, async (req, res) => {
     const result = await onramp(userId);
 
     return res.json(result);
- })
+ });
 
-app.post("/order", middleware, (req, res) => { })
-app.delete("/order/:orderId",middleware, (req, res) => { })
-app.get("/equity/available", middleware,(req, res) => { })
+app.post("/order", middleware, async (req, res) => { 
+    // @ts-ignore
+    const userId = req.userId;
+
+    const orderData = req.body;
+
+    const result =  await matchOrder(userId,orderData);
+
+    return res.json(result);
+
+});
+
+app.delete("/order/:orderId",middleware, (req, res) => { 
+    
+})
+app.get("/equity/available", middleware,async (req, res) => { 
+    // @ts-ignore
+    const userId  = req.userId;
+
+    const result = await fetchBalance(userId);
+
+    return res.json(result);
+
+})
 app.get("/positions/open/:marketId", middleware,(req, res) => { });
 app.get("/positions/closed/:marketId", middleware,(req, res) => { });
 app.get("/orders/open/:marketId", middleware,(req, res) => { })

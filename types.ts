@@ -42,14 +42,14 @@ export type position = {
 }
 
 export type order = {
-    orderId : string,
+    orderId ?: string,
     market : string,
     type : "LONG" | "SHORT",
     qty : number,
     margin : number,
     orderType : "market" | "limit",
     price : number,
-    status : "open" | "filled" | "cancelled"
+    status : "open" | "partially-filled" | "filled" | "cancelled"
 }
 
 export type Orderbooks = Record<string, Orderbook>
