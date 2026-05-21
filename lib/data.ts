@@ -20,7 +20,15 @@ const users = [{
         { market: "ETH", type: "SHORT", qty: 1, margin: 500, liquidationPrice: 2000, averagePrice: 1900 }
     ],
     orders: [
-        { orderId: 1, market: "SOL", type: "LONG", qty: 10, margin: 500, orderType: "limit", price: 90, status: "filled" },
+        { 
+            
+            orderId: 1, market: "SOL", type: "LONG", 
+            
+            qty: 10, margin: 500, orderType: "limit", price: 90, 
+            
+            status: "filled"
+        
+        },
         { orderId: 2, market: "ETH", type: "SHORT", qty: 10, margin: 500, orderType: "limit", price: 1900, status: "filled" },
         { orderId: 3, market: "BTC", type: "LONG", qty: 10, margin: 500, orderType: "limit", price: 1900, status: "cancelled" },
     ]

@@ -108,6 +108,7 @@ app.post("/order", middleware, async (req, res) => {
 app.delete("/order/:orderId",middleware, (req, res) => { 
     
 })
+
 app.get("/equity/available", middleware,async (req, res) => { 
     // @ts-ignore
     const userId  = req.userId;
@@ -116,7 +117,8 @@ app.get("/equity/available", middleware,async (req, res) => {
 
     return res.json(result);
 
-})
+});
+
 app.get("/positions/open/:marketId", middleware,(req, res) => { });
 app.get("/positions/closed/:marketId", middleware,(req, res) => { });
 app.get("/orders/open/:marketId", middleware,(req, res) => { })
