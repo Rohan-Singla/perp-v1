@@ -20,9 +20,10 @@ export type User = {
 }
 
 export type Authuser = {
-    userId ?: string,
-    username : string,
-    password : string,
+    id?: string,
+    userId?: string,
+    username: string,
+    password: string,
 }
 
 export type TradingAccount = {
@@ -76,9 +77,11 @@ export type position = {
 
 export type order = {
     orderId?: string,
+    userId : string,
     market: string,
     type: "LONG" | "SHORT",
     qty: number,
+    filledQty?: number,
     margin: number,
     orderType: "market" | "limit",
     price: number,
@@ -89,4 +92,16 @@ export type order = {
     | "cancelled"
     | "rejected"
     | "pending"
+}
+
+export type Fill = {
+    fillId: string,
+    market: string,
+    qty: number,
+    price: number,
+    makerUserId: string,
+    takerUserId: string,
+    longUserId: string,
+    shortUserId: string,
+    createdAt: Date,
 }

@@ -1,17 +1,12 @@
-import { client } from "../../redis-client";
 import type { collateral } from "../../types";
+import { getBalance } from "./lib";
 
-export async function fetchBalance(userId:string) {
-    const userBalance = await client.get(`collateral:${userId}`);
+export async function fetchBalance(userId: string) {
+    const balance: collateral = await getBalance(userId);
 
-    if(userBalance){
-
-        const balance : collateral = JSON.parse(userBalance);
-
-        return balance;
-
-    }else{
-        return {error : "No user balance found please go to /onramp"};
+    if (balance.available === 0 && balance.locked === 0) {
+        return { error: "No user balance found please go to /onramp" };
     }
 
+    return balance;
 }
