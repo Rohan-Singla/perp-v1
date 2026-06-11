@@ -11,6 +11,9 @@ import { deleteOrder } from "./engine/deleteOrder";
 import { fetchOpenPositions, fetchClosedPositions } from "./engine/fetchPositions";
 import { fetchOpenOrders, fetchOrders } from "./engine/fetchOrders";
 import { fetchFills } from "./engine/fetchFills";
+import { startBinancePriceFeed } from "./engine/binancePriceFeed";
+import { liquidationChecks } from "./engine/liquidation";
+import { loadOrderbook, saveOrderbook } from "./engine/lib";
 
 const app = express();
 app.use(express.json());
@@ -224,14 +227,29 @@ app.get("/fills", middleware, async (req, res) => {
     }
 });
 
-async function liqudationChecks(asset: string, price: number) {
+app.get("/market/:marketId/price", async (req, res) => {
+    const marketId = req.params.marketId;
+    try {
+        const orderbook = await loadOrderbook(marketId);
+        return res.json({
+            market: marketId,
+            indexPrice: orderbook.indexPrice,
+            lastTradedPrice: orderbook.lastTradedPrice,
+        });
+    } catch (error) {
+        return handleError(res, error);
+    }
+});
 
-}
+async function onPriceUpdateFromBinance(market: string, price: number) {
+    const orderbook = await loadOrderbook(market);
+    orderbook.indexPrice = price;
+    await saveOrderbook(market, orderbook);
 
-async function onPriceUpdateFromBinance(asset: string, price: number) {
-    liqudationChecks(asset, price);
+    await liquidationChecks(market, price);
 }
 
 app.listen(3000, () => {
-    console.log(`Server is running on port : 3000`)
-})
+    console.log(`Server is running on port : 3000`);
+    startBinancePriceFeed(onPriceUpdateFromBinance);
+});

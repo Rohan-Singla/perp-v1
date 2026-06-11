@@ -1,5 +1,5 @@
 import { client } from "../../redis-client"
-import type { collateral, Fill, order, Orderbook, position } from "../../types"
+import type { closedPosition, collateral, Fill, order, Orderbook, position } from "../../types"
 
 function getOrderbookKey(market: string) {
     return `orderbook:${market}`
@@ -11,6 +11,10 @@ function getPositionKey(userId: string) {
 
 function getClosedPositionKey(userId: string) {
     return `closed_positions:${userId}`
+}
+
+function getMarketPositionsKey(market: string) {
+    return `market_positions:${market}`
 }
 
 export function getCollateralKey(userId: string) {
@@ -81,46 +85,48 @@ export async function savePositions(userId: string, positions: position[]) {
     await client.set(getPositionKey(userId), JSON.stringify(positions))
 }
 
-export async function getClosedPositions(userId: string): Promise<position[]> {
+export async function getClosedPositions(userId: string): Promise<closedPosition[]> {
     const data = await client.get(getClosedPositionKey(userId))
     if (!data) return []
     return JSON.parse(data)
 }
 
-export async function saveClosedPositions(userId: string, positions: position[]) {
+export async function saveClosedPositions(userId: string, positions: closedPosition[]) {
     await client.set(getClosedPositionKey(userId), JSON.stringify(positions))
 }
 
-export async function updatePosition(
-    userId: string,
-    market: string,
-    type: "LONG" | "SHORT",
-    qty: number,
-    executionPrice: number,
-    margin: number
-) {
-    const positions = await getPositions(userId)
-    
-    const existing = positions.find((p) => p.market === market && p.type === type)
-    if (!existing) {
-        positions.push({
-            market,
-            type,
-            qty,
-            margin,
-            liquidationPrice: 0,
-            averagePrice: executionPrice
-        })
-    } else {
-        const totalQty = existing.qty + qty
-        existing.averagePrice = (
-            existing.qty * existing.averagePrice +
-            qty * executionPrice
-        ) / totalQty
-        existing.qty = totalQty
-        existing.margin += margin
+export async function getUsersWithOpenPositions(market: string): Promise<string[]> {
+    const data = await client.get(getMarketPositionsKey(market))
+    if (!data) return []
+    return JSON.parse(data)
+}
+
+export async function addUserToMarketIndex(userId: string, market: string) {
+    const key = getMarketPositionsKey(market)
+    const data = await client.get(key)
+    const userIds: string[] = data ? JSON.parse(data) : []
+    if (!userIds.includes(userId)) {
+        userIds.push(userId)
+        await client.set(key, JSON.stringify(userIds))
     }
-    await savePositions(userId, positions)
+}
+
+export async function removeUserFromMarketIndex(userId: string, market: string) {
+    const key = getMarketPositionsKey(market)
+    const data = await client.get(key)
+    if (!data) return
+    const userIds: string[] = JSON.parse(data)
+    const filtered = userIds.filter((id) => id !== userId)
+    await client.set(key, JSON.stringify(filtered))
+}
+
+export async function syncMarketPositionIndex(userId: string, market: string, positions: position[]) {
+    const hasOpen = positions.some((p) => p.market === market && p.qty > 0)
+    if (hasOpen) {
+        await addUserToMarketIndex(userId, market)
+    } else {
+        await removeUserFromMarketIndex(userId, market)
+    }
 }
 
 export function addToBook(orderbook: Orderbook, incomingOrder: order, userId: string, remainingQty: number) {

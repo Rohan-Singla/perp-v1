@@ -10,8 +10,8 @@ import {
     saveOrderbook,
     unlockBalance,
     updateBalance,
-    updatePosition,
 } from "./lib";
+import { updatePosition } from "./closePosition";
 
 
 export async function matchOrder(userId: string, incomingOrder: order) {

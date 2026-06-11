@@ -49,6 +49,18 @@ export type OpenOrder = {
     | "pending"
 }
 
+export type closedPosition = {
+    market: string
+    type: "LONG" | "SHORT"
+    qty: number
+    margin: number
+    averagePrice: number
+    closePrice: number
+    pnl: number
+    closedAt: Date
+    closeReason: "manual" | "liquidated"
+  }
+
 export type Bid = {
     availableQty: number,
     openOrders: OpenOrder[]
